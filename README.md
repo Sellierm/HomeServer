@@ -1,7 +1,7 @@
 # HomeServer
 This repository contains the Docker configuration for a full-stack media server running on a recycled **Lenovo**.
 
-##Hardware Specs
+## Hardware Specs
 - **Host:** Lenovo X1 Yoga 1st Gen (Signature Edition)
 - **OS:** Debian 13 (Headless)
 - **CPU:** Intel Core i5
