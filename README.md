@@ -4,9 +4,10 @@ This repository contains the Docker configuration for a full-stack media server 
 ## Hardware Specs
 - **Host:** Lenovo X1 Yoga 1st Gen (Signature Edition)
 - **OS:** Debian 13 (Headless)
-- **CPU:** Intel Core i5
-- **Storage:** 4TB Seagate Ironwolf HDD (Mounted at `/mnt/hdd`)
-- **Performance:** Capability of 6-10 simultaneous 1080p streams.
+- **CPU:** Intel Core i5-6300U
+- **Memory:** 8 GB
+- **Storage:** 4 TB Seagate Ironwolf HDD (Mounted at `/mnt/hdd`)
+- **Performance:** Capability of 6-10 simultaneous 1080p streams (1-3 4K).
 
 ## Features
 - **VPN Protection:** All torrent traffic is routed through **Private Internet Access** via `gluetun`.
