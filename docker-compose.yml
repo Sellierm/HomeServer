@@ -27,7 +27,7 @@ services:
       - UPDATER_PERIOD=24h
       - PRIVATE_INTERNET_ACCESS_OPENVPN_ENCRYPTION_PRESET=normal
       # --- FIX DNS & TIMEOUTS ---
-      - DNS_KEEP_NAMESERVER=on
+      - DNS_KEEP_NAMESERVER=off
       - DOT=off
       - DNS_ADDRESS=1.1.1.1
       - BLOCK_MALICIOUS=off
@@ -43,9 +43,11 @@ services:
       - 8080:8080   # qBittorrent WebUI
       - 9696:9696   # Prowlarr UI
       - 8191:8191   # Byparr API
+      #- 9191:9191
       #- 44596:44596 # Port Forwarding actuel (à vérifier via logs)
     volumes:
       - ./config/gluetun:/gluetun
+      - ./config/gluetun/shared:/tmp/gluetun
     networks:
       - medianet
     restart: unless-stopped
@@ -100,9 +102,6 @@ services:
       - ./config/prowlarr:/config
     restart: unless-stopped
 
-  # ─────────────────────────────────────────────
-  # Services de Gestion & Médias (Standard)
-  # ─────────────────────────────────────────────
   radarr:
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
@@ -184,6 +183,7 @@ services:
       - TZ=${TZ:-Europe/Paris}
       - PUID=1000
       - PGID=1000
+      - TRUST_PROXY=true
     ports:
       - 5055:5055
     volumes:
@@ -207,6 +207,83 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     ports:
       - 9100:9100
+    networks:
+      - medianet
+    restart: unless-stopped
+    <<: *default-logging
+
+  dispatcharr:
+    image: ghcr.io/dispatcharr/dispatcharr:latest
+    container_name: dispatcharr
+    environment:
+      - TZ=${TZ:-Europe/Paris}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - DISPATCHARR_TRUST_PROXY=true
+     # - DISPATCHARR_TRUSTED_PROXIES=127.0.0.1/32,172.16.0.0/12
+     # - DISPATCHARR_REAL_IP_HEADER=X-Forwarded-For
+    ports:
+      - 9191:9191
+    volumes:
+      - ./config/dispatcharr:/config
+      - ./config/dispatcharr/data:/data
+    networks:
+      - medianet
+    restart: unless-stopped
+    <<: *default-logging
+
+  viniplay:
+    image: ardovini/viniplay:latest
+    #build: https://github.com/sellierm/ViniPlay.git#main
+    container_name: viniplay
+    environment:
+      - SESSION_SECRET=${VINIPLAY_SESSION_SECRET}
+      - VAPID_CONTACT_EMAIL=mailto:math.sellier@yahoo.fr
+      - TZ=${TZ:-Europe/Paris}
+      - TRUST_PROXY=true
+#      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    ports:
+      - 8998:8998
+    volumes:
+      - ./config/viniplay:/data
+    devices:
+      - /dev/dri:/dev/dri   # optional, only if you want QSV/VAAPI GPU transcoding like jellyfin
+    group_add:
+      - "992"
+      - "44"
+    networks:
+      - medianet
+    restart: unless-stopped
+    <<: *default-logging
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    environment:
+      - TZ=${TZ:-Europe/Paris}
+    ports:
+      - 9443:9443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config/portainer:/data
+    networks:
+      - medianet
+    restart: unless-stopped
+    <<: *default-logging
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Europe/Paris}
+      - HOMEPAGE_ALLOWED_HOSTS=serveur.tail0232e3.ts.net:3001,100.110.83.3:3001,192.168.1.20:3001,localhost:3001
+    ports:
+      - 3001:3000
+    volumes:
+      - ./config/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - medianet
     restart: unless-stopped
