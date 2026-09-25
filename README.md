@@ -5,7 +5,7 @@ Repo Docker pour un media server complet qui tourne sur un **Lenovo** recyclé.
 - **Host:** BMAX B4 Turbo 
 - **OS:** Debian 13 (Headless)
 - **CPU:** Intel N150
-- **Memory:** 16 GB GB
+- **Memory:** 16 GB
 - **Storage:** 4 TB Seagate Ironwolf HDD (montée sur `/mnt/hdd`)
 - **Performance:** 20 streams 1080p simultanés (5 en 4K)
 
